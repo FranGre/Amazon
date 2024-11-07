@@ -1,0 +1,11 @@
+﻿ClienteID,Nombre,Apellido,Correo,FechaNacimiento,Telefono
+1,Juan,Pérez,juan.perez@example.com,1985-04-12,1234567890
+2,Ana,García,ana.garcia@example.,1992-13-05,2345678901
+3,Carlos,López,carlos.lopez@example.com,1988-07-25,12345AB789
+4,Laura,Martínez,laura.martinez@example.com,1993-02-30,3456789012
+5,,Ramirez,jose.ramirez@example.com,1990-05-10,4567890123
+6,Miguel,Hernandez,miguel.hernandez@examplecom,2001-06-15,5678901234
+7,Sofia,Gomez,sofia.gomez@example.com,abc,6789012345
+8,Pedro,,pedro@example.com,1975-09-09,789012345
+9,Alicia,Nuñez,alicia.nunez@example,1972-11-22,8901234567
+10,Julia,Silva,julia.silva@example.com,1989-07-12,90123456789
