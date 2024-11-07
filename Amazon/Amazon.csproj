@@ -62,7 +62,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utilidades\Consola.cs" />
-    <Compile Include="Utilidades\Csv.cs" />
+    <Compile Include="Utilidades\Migracion.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

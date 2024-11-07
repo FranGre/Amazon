@@ -18,11 +18,13 @@ namespace Amazon.Utilidades
         public static void EscribirError(string mensaje)
         {
             Escribir(mensaje, ConsoleColor.Red);
+            Console.ReadKey();
         }
 
         public static void EscribirExito(string mensaje)
         {
             Escribir(mensaje, ConsoleColor.Green);
+            Console.ReadKey();
         }
     }
 }

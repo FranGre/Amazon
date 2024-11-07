@@ -14,6 +14,7 @@ namespace Amazon.Contexto
     {
         public DbSet<Cliente> Clientes { get; set; }
 
+        public AppDbContexto() : base(CreateConnection(), true) { }
 
         private static DbConnection CreateConnection()
         {
