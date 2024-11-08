@@ -8,23 +8,21 @@ namespace Amazon.Utilidades
 {
     internal class Consola
     {
-        public static void Escribir(string mensaje, ConsoleColor colorTexto)
+        public static void EscribirLinea(Mensaje mensaje)
         {
-            Console.ForegroundColor = colorTexto;
-            Console.WriteLine(mensaje);
+            Console.ForegroundColor = mensaje.color;
+            Console.WriteLine(mensaje.texto);
             Console.ResetColor();
         }
 
         public static void EscribirError(string mensaje)
         {
-            Escribir(mensaje, ConsoleColor.Red);
-            Console.ReadKey();
+            EscribirLinea(new Mensaje(mensaje, ConsoleColor.Red));
         }
 
         public static void EscribirExito(string mensaje)
         {
-            Escribir(mensaje, ConsoleColor.Green);
-            Console.ReadKey();
+            EscribirLinea(new Mensaje(mensaje, ConsoleColor.Green));
         }
     }
 }

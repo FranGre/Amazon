@@ -17,6 +17,7 @@ namespace Amazon
 
             var migracion = new Migracion();
             migracion.MigrarDatos($"{raizProyecto}/clientes.csv");
+            Console.ReadKey();
         }
     }
 }

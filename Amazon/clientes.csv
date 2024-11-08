@@ -5,7 +5,7 @@
 4,Laura,Martínez,laura.martinez@example.com,1993-02-27,3456789012
 5,,Ramirez,jose.ramirez@example.com,1990-05-10,4567890123
 6,Miguel,Hernandez,miguel.hernandez@examplecom, 2001-06-15,5678901234
-7,Sofia,Gomez, sofia.gomez@example.com,abc,6789012345
+7,Sofia,Gomez, sofia.gomez@example.com,,6789012345
 8,Pedro,,pedro@example.com,1975-09-09,789012345
 9,Alicia,Nuñez,alicia.nunez@example,1972-11-22,8901234567
 10,Julia,Silva,julia.silva@example.com,1989-07-12, 90123456789

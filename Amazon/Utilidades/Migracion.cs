@@ -1,6 +1,7 @@
 ﻿using Amazon.Contexto;
 using Amazon.Modelos;
 using Aspose.Cells;
+using NLog;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -21,6 +22,8 @@ namespace Amazon.Utilidades
         private const int TELEFONO = 5;
         private const string EMAIL_REGEX = @"^[\w\.-]+@[a-zA-Z\d\.-]+\.[a-zA-Z]{2,}$";
         private const string TELEFONO_REGEX = @"^\d+$";
+        private const ConsoleColor COLOR_ERROR = ConsoleColor.Red;
+        private const ConsoleColor COLOR_SUCCESS = ConsoleColor.Green;
         private AppDbContexto db;
 
         public Migracion()
@@ -32,7 +35,7 @@ namespace Amazon.Utilidades
         {
             if (!File.Exists(rutaCsv))
             {
-                Consola.EscribirError($"no existe {rutaCsv}");
+                Consola.EscribirLinea(new Mensaje($"No se ha encontrado el fichero {rutaCsv}", COLOR_ERROR));
                 return;
             }
 
@@ -42,7 +45,7 @@ namespace Amazon.Utilidades
             // Establecemos nuestra hoja de trabajo para leer el csv uisado Aspose.Cells
             Worksheet worksheet = workbook.Worksheets.First();
 
-            for (int i = 1; i <= worksheet.Cells.MaxDataRow; i++)
+            for (int i = 8; i <= worksheet.Cells.MaxDataRow; i++)
             {
                 var id = worksheet.Cells[i, ID].StringValue;
                 var nombre = worksheet.Cells[i, NOMBRE].StringValue;
@@ -55,16 +58,15 @@ namespace Amazon.Utilidades
                 // ID
                 if (string.IsNullOrEmpty(id))
                 {
-                    Consola.EscribirError($"cliente {nombre} {apellidos} {email} NO TIENE ID");
-                    return;
+                    Consola.EscribirLinea(new Mensaje($"CLIENTE {nombre} {apellidos} {email} NO GUARDADO, NO TIENE ID", COLOR_ERROR));
+                    continue;
                 }
 
 
                 // NOMBRE
                 if (string.IsNullOrEmpty(nombre))
                 {
-                    Consola.EscribirError($"cliente {id} NO TIENE NOMBRE");
-                    return;
+                    nombre = "-";
                 }
 
                 nombre = nombre.Trim();
@@ -93,39 +95,45 @@ namespace Amazon.Utilidades
 
 
                 // APELLIDOS
-                if (!string.IsNullOrEmpty(apellidos))
+                if (string.IsNullOrEmpty(apellidos))
                 {
-                    apellidos = apellidos.Trim();
+                    apellidos = "-";
+                }
 
-                    if (apellidos.Count() > 40)
-                    {
-                        apellidos = apellidos.Substring(0, 40);
-                    }
+                apellidos = apellidos.Trim();
+
+                if (apellidos.Count() > 40)
+                {
+                    apellidos = apellidos.Substring(0, 40);
                 }
 
 
                 // EMAIL
                 if (string.IsNullOrEmpty(email))
                 {
-                    Consola.EscribirError($"cliente {id} {nombre} NO TIENE EMAIL");
-                    return;
+                    Consola.EscribirLinea(new Mensaje($"CLIENTE {id} {nombres[0]} {email} NO GUARDADO, NO TIENE EMAIL", COLOR_ERROR));
+                    continue;
                 }
 
                 email = email.Trim();
 
                 if (!Regex.IsMatch(email, EMAIL_REGEX))
                 {
-                    Consola.EscribirError($"cliente {id} {nombre} FORMATO EMAIL INCORRECTO");
-                    return;
+                    Consola.EscribirLinea(new Mensaje($"CLIENTE {id} {nombres[0]} {email}  NO GUARDADO, FORMATO EMAIL INCORRECTO", COLOR_ERROR));
+                    continue;
                 }
-                // Comprobar si el email es unique
+
+                if (db.Clientes.Where(c => c.Email == email).FirstOrDefault() != null)
+                {
+                    Consola.EscribirLinea(new Mensaje($"CLIENTE {id} {nombres[0]} {email} NO GUARDADO, EMAIL EN USO", COLOR_ERROR));
+                    continue;
+                }
 
 
                 // FECHA NACIMIENTO
                 if (string.IsNullOrEmpty(fechaNacimientoString))
                 {
-                    Consola.EscribirError($"cliente {id} {nombre} NO TIENE FECHA DE NACIMIENTO");
-                    return;
+                    fechaNacimientoString = DateTime.Now.ToString("yyyy-MM-dd");
                 }
 
                 fechaNacimientoString = fechaNacimientoString.Trim();
@@ -133,38 +141,33 @@ namespace Amazon.Utilidades
 
                 if (fechaNacimiento > DateTime.Now)
                 {
-                    Consola.EscribirError($"cliente {id} {nombre} NO PUEDE TENER LA FECHA NACIMIENTO SUPERIOR AL DIA DE HOY");
-                    return;
+                    fechaNacimiento = DateTime.ParseExact(DateTime.Now.ToString(), "yyyy-MM-dd", null);
                 }
 
                 if (fechaNacimiento < new DateTime(1920, 01, 01))
                 {
-                    Consola.EscribirError($"cliente {id} {nombre} NO PUEDE TENER LA FECHA NACIMIENTO INFERIOR A 1920");
-                    return;
+                    fechaNacimiento = new DateTime(1920, 01, 01);
                 }
 
 
                 // TELEFONO
                 if (string.IsNullOrEmpty(telefono))
                 {
-                    Consola.EscribirError($"cliente {id} {nombre} NO TIENE TELEFONO");
-                    return;
+                    telefono = "000000000";
                 }
 
                 telefono = telefono.Trim();
 
                 if (!Regex.IsMatch(telefono, TELEFONO_REGEX))
                 {
-                    Consola.EscribirError($"cliente {id} {nombre} EL TELEFONO CONTIENE LETRAS");
-                    return;
+                    Consola.EscribirLinea(new Mensaje($"CLIENTE {id} {nombres[0]} {email} NO GUARDADO, TELEFONO CONTIENE LETRAS", COLOR_ERROR));
+                    continue;
                 }
 
                 if (telefono.Count() > 9)
                 {
                     telefono = telefono.Substring(0, 9);
                 }
-
-                // comprobar tlf es unique
 
                 var cliente = new Cliente
                 {
@@ -182,14 +185,12 @@ namespace Amazon.Utilidades
                 try
                 {
                     db.SaveChanges();
+                    Consola.EscribirLinea(new Mensaje($"CLIENTE {id} GUARDADO :)", COLOR_SUCCESS));
                 }
                 catch (Exception ex)
                 {
-                    Consola.EscribirError($"cliente {cliente.Id} {cliente.PrimerNombre} {cliente.Email} {ex.ToString()}");
-                    Console.ReadKey();
+                    Consola.EscribirLinea(new Mensaje($"{cliente.Id} {cliente.PrimerNombre} {cliente.Email} - {ex.ToString()}", COLOR_ERROR));
                 }
-
-                Consola.EscribirExito("Clientes validados obtenidos :)");
             }
         }
     }
